@@ -1,0 +1,283 @@
+/* Pump Button Styles */
+.pump-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pump-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.user-info h1 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.user-info p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.logout-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-weight: 500;
+}
+
+.logout-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.pump-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.pump-button-container {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.pump-button {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+  box-shadow: 
+    0 20px 40px rgba(238, 90, 36, 0.3),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.1),
+    inset 0 10px 20px rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.pump-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 
+    0 25px 50px rgba(238, 90, 36, 0.4),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.1),
+    inset 0 10px 20px rgba(255, 255, 255, 0.2);
+}
+
+.pump-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.pump-button.loading {
+  animation: pulse 1.5s infinite;
+}
+
+.pump-button.pumped {
+  animation: pump-success 0.8s ease-out;
+  background: linear-gradient(145deg, #00d2ff, #3a7bd5);
+}
+
+.pump-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.pump-emoji {
+  font-size: 4rem;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.pump-text {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.pump-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.pump-button:active .pump-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+.last-pump {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.last-pump p {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 20px;
+  margin: 0;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.setup-info {
+  text-align: center;
+  color: white;
+  margin: 20px 0;
+}
+
+.setup-info p {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 24px;
+  border-radius: 20px;
+  margin: 0;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.app-info {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: auto;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.app-info h3 {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 1.25rem;
+}
+
+.app-info ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.app-info li {
+  margin-bottom: 8px;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pump-success {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .pump-container {
+    padding: 16px;
+  }
+  
+  .pump-header {
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  
+  .user-info h1 {
+    font-size: 1.5rem;
+  }
+  
+  .user-info p {
+    font-size: 1rem;
+  }
+  
+  .pump-button {
+    width: 220px;
+    height: 220px;
+  }
+  
+  .pump-emoji {
+    font-size: 3rem;
+  }
+  
+  .pump-text {
+    font-size: 1.2rem;
+  }
+  
+  .app-info {
+    padding: 20px;
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pump-button {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .pump-emoji {
+    font-size: 2.5rem;
+  }
+  
+  .pump-text {
+    font-size: 1rem;
+  }
+}
