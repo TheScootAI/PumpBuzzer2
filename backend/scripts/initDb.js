@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '.env' });
 const { initializeDatabase } = require('../config/database');
 
 async function initDb() {

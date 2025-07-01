@@ -1,46 +1,55 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
 
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../database.sqlite');
+// Parse the connection string or use individual environment variables
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database:', err.message);
-  } else {
-    console.log('Connected to SQLite database');
-  }
+
+
+const pool = new Pool({
+  connectionString: connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : { rejectUnauthorized: false },
+});
+
+// Test the connection
+pool.on('connect', () => {
+  console.log('Connected to PostgreSQL database');
+});
+
+pool.on('error', (err) => {
+  console.error('PostgreSQL connection error:', err);
 });
 
 // Initialize database tables
-const initializeDatabase = () => {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
+const initializeDatabase = async () => {
+  try {
+    const client = await pool.connect();
+    
+    try {
       // Users table
-      db.run(`
+      await client.query(`
         CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          username TEXT UNIQUE NOT NULL,
-          email TEXT UNIQUE NOT NULL,
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(255) UNIQUE NOT NULL,
+          email VARCHAR(255) UNIQUE NOT NULL,
           password_hash TEXT NOT NULL,
           discord_channel_id TEXT,
           webhook_url TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          last_pump_at DATETIME
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          last_pump_at TIMESTAMP
         )
-      `, (err) => {
-        if (err) {
-          console.error('Error creating users table:', err);
-          reject(err);
-        } else {
-          console.log('Users table ready');
-          resolve();
-        }
-      });
-    });
-  });
+      `);
+      
+      console.log('Users table ready');
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error initializing database:', error);
+    throw error;
+  }
 };
 
 module.exports = {
-  db,
+  pool,
   initializeDatabase
 };

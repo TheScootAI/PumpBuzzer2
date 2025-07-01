@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../config/database');
+const { pool } = require('../config/database');
 const discordService = require('../services/discordService');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
@@ -16,16 +16,10 @@ router.post('/pump', authenticateToken, async (req, res) => {
         const discordSetup = await discordService.setupUserDiscord(user.username);
         
         // Update user with Discord info
-        await new Promise((resolve, reject) => {
-          db.run(
-            'UPDATE users SET discord_channel_id = ?, webhook_url = ? WHERE id = ?',
-            [discordSetup.channelId, discordSetup.webhookUrl, user.id],
-            (err) => {
-              if (err) reject(err);
-              else resolve();
-            }
-          );
-        });
+        await pool.query(
+          'UPDATE users SET discord_channel_id = $1, webhook_url = $2 WHERE id = $3',
+          [discordSetup.channelId, discordSetup.webhookUrl, user.id]
+        );
 
         user.webhook_url = discordSetup.webhookUrl;
         user.discord_channel_id = discordSetup.channelId;
@@ -41,15 +35,14 @@ router.post('/pump', authenticateToken, async (req, res) => {
 
     // Update last pump time
     const now = new Date().toISOString();
-    db.run(
-      'UPDATE users SET last_pump_at = ? WHERE id = ?',
-      [now, user.id],
-      (err) => {
-        if (err) {
-          console.error('Failed to update last pump time:', err);
-        }
-      }
-    );
+    try {
+      await pool.query(
+        'UPDATE users SET last_pump_at = $1 WHERE id = $2',
+        [now, user.id]
+      );
+    } catch (err) {
+      console.error('Failed to update last pump time:', err);
+    }
 
     res.json({
       message: 'Pump message sent successfully!',
@@ -63,24 +56,24 @@ router.post('/pump', authenticateToken, async (req, res) => {
 });
 
 // Get user pump stats
-router.get('/stats', authenticateToken, (req, res) => {
-  const user = req.user;
-  
-  db.get(
-    'SELECT last_pump_at FROM users WHERE id = ?',
-    [user.id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
+router.get('/stats', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user;
+    
+    const result = await pool.query(
+      'SELECT last_pump_at FROM users WHERE id = $1',
+      [user.id]
+    );
 
-      res.json({
-        username: user.username,
-        lastPumpAt: result?.last_pump_at,
-        hasDiscordSetup: !!(user.discord_channel_id && user.webhook_url)
-      });
-    }
-  );
+    res.json({
+      username: user.username,
+      lastPumpAt: result.rows[0]?.last_pump_at,
+      hasDiscordSetup: !!(user.discord_channel_id && user.webhook_url)
+    });
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 module.exports = router;
